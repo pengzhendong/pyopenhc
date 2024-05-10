@@ -1,0 +1,37 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Build version (e.g. 0.0.1)"
+        required: true
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          cmake -B ${{runner.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DBUILD_PYTHON=ON -DBUILD_SHARED_LIBS=OFF
+          cmake --build ${{runner.workspace}}/build --target install --parallel --config Release
+
+      - name: Publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          echo ${{ inputs.version }} > VERSION
+          python -m pip install -U setuptools wheel
+          python setup.py bdist_wheel
+          python -m pip install -U twine
+          python -m twine upload dist/*

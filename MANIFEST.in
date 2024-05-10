@@ -1,0 +1,3 @@
+include pyopenhc/data/*
+include pyopenhc/opencc_clib.*
+include VERSION
