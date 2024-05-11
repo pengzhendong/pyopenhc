@@ -16,7 +16,13 @@ add_subdirectory(OpenCC)
 set(_DISABLE_INSTALLATION FALSE)
 
 set(PYOPENHC ${CMAKE_CURRENT_SOURCE_DIR}/pyopenhc)
-install(TARGETS libopencc LIBRARY DESTINATION ${PYOPENHC})
+install(TARGETS
+  libopencc
+  LIBRARY DESTINATION ${PYOPENHC} # shared libraries
+  RUNTIME DESTINATION ${PYOPENHC} # shared libraries for windows
+  # ARCHIVE DESTINATION ${PYOPENHC} # static libraries
+)
+
 install(DIRECTORY
   ${CMAKE_CURRENT_BINARY_DIR}/OpenCC/data/
   ${CMAKE_CURRENT_SOURCE_DIR}/OpenCC/data/config/

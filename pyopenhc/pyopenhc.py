@@ -20,7 +20,7 @@ import platform
 if platform.system() == "Darwin":
     LIBOPENCC = os.path.join(os.path.dirname(__file__), "libopencc.dylib")
 elif platform.system() == "Windows":
-    LIBOPENCC = os.path.join(os.path.dirname(__file__), "libopencc.dll")
+    LIBOPENCC = os.path.join(os.path.dirname(__file__), "opencc.dll")
 elif platform.system() == "Linux":
     LIBOPENCC = os.path.join(os.path.dirname(__file__), "libopencc.so")
 else:
@@ -33,6 +33,7 @@ lib.opencc_open.restype = ctypes.c_void_p
 lib.opencc_convert_utf8.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t]
 lib.opencc_convert_utf8.restype = ctypes.c_void_p
 lib.opencc_close.argtypes = [ctypes.c_void_p]
+lib.opencc_convert_utf8_free.argtypes = [ctypes.c_void_p]
 
 
 class OpenHC:
@@ -50,5 +51,5 @@ class OpenHC:
             raise Exception("OpenHC Convert Error")
         retv_c = ctypes.cast(retv_i, ctypes.c_char_p)
         value = retv_c.value
-        lib.free(retv_c)
+        lib.opencc_convert_utf8_free(retv_c)
         return value.decode("utf-8")
