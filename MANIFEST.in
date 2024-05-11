@@ -1,3 +1,5 @@
 include pyopenhc/data/*
-include pyopenhc/opencc_clib.*
+include pyopenhc/*.dll
+include pyopenhc/*.dylib
+include pyopenhc/*.so
 include VERSION

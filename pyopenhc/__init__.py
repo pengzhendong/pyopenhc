@@ -12,20 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
-from . import opencc_clib
-
-
-class OpenHC(opencc_clib._OpenCC):
-    def __init__(self, config="t2s"):
-        if not config.endswith(".json"):
-            config += ".json"
-        if not os.path.isfile(config):
-            config = os.path.join(os.path.dirname(__file__), "data", config)
-        super(OpenHC, self).__init__(config)
-        self.config = config
-
-    def convert(self, text):
-        text = text.encode("utf-8")
-        return super(OpenHC, self).convert(text, len(text))
+from .pyopenhc import *
