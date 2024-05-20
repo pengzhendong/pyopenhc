@@ -17,39 +17,37 @@ import os
 import platform
 
 
-if platform.system() == "Darwin":
-    LIBOPENCC = os.path.join(os.path.dirname(__file__), "libopencc.dylib")
-elif platform.system() == "Windows":
-    LIBOPENCC = os.path.join(os.path.dirname(__file__), "opencc.dll")
-elif platform.system() == "Linux":
-    LIBOPENCC = os.path.join(os.path.dirname(__file__), "libopencc.so")
-else:
-    raise OSError("Unsupported operating system")
-if not os.path.exists(LIBOPENCC):
-    raise OSError(f"OpenCC library not found: {LIBOPENCC}")
-lib = ctypes.CDLL(LIBOPENCC)
-
-lib.opencc_open.restype = ctypes.c_void_p
-lib.opencc_convert_utf8.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t]
-lib.opencc_convert_utf8.restype = ctypes.c_void_p
-lib.opencc_close.argtypes = [ctypes.c_void_p]
-lib.opencc_convert_utf8_free.argtypes = [ctypes.c_void_p]
-
-
 class OpenHC:
     def __init__(self, config="t2s"):
+        if platform.system() == "Darwin":
+            LIBOPENCC = os.path.join(os.path.dirname(__file__), "libopencc.dylib")
+        elif platform.system() == "Windows":
+            LIBOPENCC = os.path.join(os.path.dirname(__file__), "opencc.dll")
+        elif platform.system() == "Linux":
+            LIBOPENCC = os.path.join(os.path.dirname(__file__), "libopencc.so")
+        else:
+            raise OSError("Unsupported operating system")
+        if not os.path.exists(LIBOPENCC):
+            raise OSError(f"OpenCC library not found: {LIBOPENCC}")
+        self.lib = ctypes.CDLL(LIBOPENCC)
+        self.lib.opencc_open.restype = ctypes.c_void_p
+        self.lib.opencc_convert_utf8.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t]
+        self.lib.opencc_convert_utf8.restype = ctypes.c_void_p
+        self.lib.opencc_close.argtypes = [ctypes.c_void_p]
+        self.lib.opencc_convert_utf8_free.argtypes = [ctypes.c_void_p]
+
         if not config.endswith(".json"):
             config += ".json"
         if not os.path.isfile(config):
             config = os.path.join(os.path.dirname(__file__), "data", config)
-        self._od = lib.opencc_open(ctypes.c_char_p(config.encode("utf-8")))
+        self._od = self.lib.opencc_open(ctypes.c_char_p(config.encode("utf-8")))
 
     def convert(self, text):
         text = text.encode("utf-8")
-        retv_i = lib.opencc_convert_utf8(self._od, text, len(text))
+        retv_i = self.lib.opencc_convert_utf8(self._od, text, len(text))
         if retv_i == -1:
             raise Exception("OpenHC Convert Error")
         retv_c = ctypes.cast(retv_i, ctypes.c_char_p)
         value = retv_c.value
-        lib.opencc_convert_utf8_free(retv_c)
+        self.lib.opencc_convert_utf8_free(retv_c)
         return value.decode("utf-8")
