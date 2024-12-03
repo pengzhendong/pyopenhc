@@ -29,6 +29,7 @@ class custom_bdist_wheel(bdist_wheel):
             plat = "manylinux1_i686"
         return "py3", "none", plat
 
+
 setup(
     name="pyopenhc",
     version=open("VERSION", encoding="utf8").read(),
